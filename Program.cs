@@ -1,4 +1,5 @@
 using DotNET.Dtos;
+using Microsoft.VisualBasic;
 
 var builder = WebApplication.CreateBuilder(args);
 var app = builder.Build();
@@ -62,6 +63,20 @@ app.MapPost("/games", (CreateGameDto newGame) =>
     );
     games.Add(game);
     return Results.CreatedAtRoute("GetGame", new { id = game.Id }, game);
+});
+
+app.MapPut("/games/{id}", (int id, UpdateGameDto updatedGame) =>
+{
+    var index = games.FindIndex(game => game.Id == id);
+
+    games[index] = new GameDto(
+        id,
+        updatedGame.Name,
+        updatedGame.Genre,
+        updatedGame.Price,
+        updatedGame.ReleaseDate
+    );
+    return Results.NoContent();
 });
 
 app.MapGet("/", () => "Hello World!");

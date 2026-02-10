@@ -26,3 +26,4 @@ C:\Users\nonst\OneDrive\Documents\DotNET\obj\Debug\net10.0\refint\DotNET.dll
 C:\Users\nonst\OneDrive\Documents\DotNET\obj\Debug\net10.0\DotNET.pdb
 C:\Users\nonst\OneDrive\Documents\DotNET\obj\Debug\net10.0\DotNET.genruntimeconfig.cache
 C:\Users\nonst\OneDrive\Documents\DotNET\obj\Debug\net10.0\ref\DotNET.dll
+C:\Users\nonst\OneDrive\Documents\DotNET\obj\Debug\net10.0\DotNET.sourcelink.json

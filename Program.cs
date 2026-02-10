@@ -69,6 +69,11 @@ app.MapPut("/games/{id}", (int id, UpdateGameDto updatedGame) =>
 {
     var index = games.FindIndex(game => game.Id == id);
 
+    if (index == -1)
+    {
+        return Results.NotFound();
+    }
+
     games[index] = new GameDto(
         id,
         updatedGame.Name,
@@ -76,6 +81,19 @@ app.MapPut("/games/{id}", (int id, UpdateGameDto updatedGame) =>
         updatedGame.Price,
         updatedGame.ReleaseDate
     );
+    return Results.NoContent();
+});
+
+app.MapDelete("/games/{id}", (int id) =>
+{
+    var index = games.FindIndex(game => game.Id == id);
+
+    if (index == -1)
+    {
+        return Results.NotFound();
+    }
+
+    games.RemoveAt(index);
     return Results.NoContent();
 });
 

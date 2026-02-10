@@ -27,3 +27,9 @@ C:\Users\nonst\OneDrive\Documents\DotNET\obj\Debug\net10.0\DotNET.pdb
 C:\Users\nonst\OneDrive\Documents\DotNET\obj\Debug\net10.0\DotNET.genruntimeconfig.cache
 C:\Users\nonst\OneDrive\Documents\DotNET\obj\Debug\net10.0\ref\DotNET.dll
 C:\Users\nonst\OneDrive\Documents\DotNET\obj\Debug\net10.0\DotNET.sourcelink.json
+C:\Users\nonst\OneDrive\Documents\DotNET\bin\Debug\net10.0\Microsoft.OpenApi.dll
+C:\Users\nonst\OneDrive\Documents\DotNET\bin\Debug\net10.0\MinimalApis.Extensions.dll
+C:\Users\nonst\OneDrive\Documents\DotNET\bin\Debug\net10.0\MiniValidation.dll
+C:\Users\nonst\OneDrive\Documents\DotNET\obj\Debug\net10.0\DotNET.csproj.AssemblyReference.cache
+C:\Users\nonst\OneDrive\Documents\DotNET\obj\Debug\net10.0\DotNET.MvcApplicationPartsAssemblyInfo.cs
+C:\Users\nonst\OneDrive\Documents\DotNET\obj\Debug\net10.0\DotNET.csproj.Up2Date

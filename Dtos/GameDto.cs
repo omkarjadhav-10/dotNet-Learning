@@ -2,6 +2,6 @@ namespace DotNET.Dtos;
 
 public record class GameDto(int Id,
                             string Name,
-                            int GenreId,
+                            string Genre,
                             decimal Price,
                             DateOnly ReleaseDate);

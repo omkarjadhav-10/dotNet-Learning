@@ -4,62 +4,31 @@ using System;
 using DotNET.Data;
 using DotNET.Dtos;
 using DotNET.Entities;
+using DotNET.Mapping;
+using Microsoft.EntityFrameworkCore;
 
 namespace DotNET.Endpoints;
 
 public static class GamesEndpoints
 {
 
-    private static readonly List<Dtos.GameDto> games =
-[
-    new(
-       1,
-        "Street Fighter II",
-        1,
-        19.99m,
-        new DateOnly(1992, 7, 15)
-    ),
-    new(
-        2,
-        "Final Fantasy XIV",
-        2,
-        59.99m,
-        new DateOnly(2010, 9, 30)
-    ),
-    new(
-        3,
-        "FIFA 23",
-        3,
-        69.99m,
-        new DateOnly(2022, 9, 27)
-    ),
-    new(
-        4,
-        "The Legend of Zelda: Breath of the Wild",
-        4,
-        59.99m,
-        new DateOnly(2017, 3, 3)
-    ),
-    new(
-        5,
-        "Minecraft",
-        5,
-        26.95m,
-        new DateOnly(2011, 11, 18)
-    )
-];
-
     public static WebApplication MapGamesEndpoints(this WebApplication app)
     {
         var group = app.MapGroup("/games");
 
-        group.MapGet("/", () => games);
+        group.MapGet("/", (GameStoreContext dbContext) =>
+            dbContext.Games
+                .Include(game => game.Genre)
+                .Select(game => game.ToGameSummaryDto())
+                .ToList());
 
-        group.MapGet("/{id}", (int id) =>
+        group.MapGet("/{id}", (int id, GameStoreContext dbContext) =>
         {
-            var game = games.FirstOrDefault(g => g.Id == id);
+            var game = dbContext.Games
+                .Include(g => g.Genre)
+                .FirstOrDefault(g => g.Id == id);
             return game is not null
-                ? Results.Ok(game)
+                ? Results.Ok(game.ToGameDetailsDto())
                 : Results.NotFound();
         }).WithName("GetGame");
 
@@ -71,49 +40,44 @@ public static class GamesEndpoints
                 return Results.BadRequest($"Invalid genre id: {newGame.GenreId}");
             }
 
-            Game game = new()
-            {
-                Name = newGame.Name,
-                Genre = genre,
-                GenreId = newGame.GenreId,
-                Price = newGame.Price,
-                ReleaseDate = newGame.ReleaseDate
-
-            };
+            Game game = newGame.ToGame(genre);
             dbContext.Games.Add(game);
-            return Results.CreatedAtRoute("GetGame", new { id = game.Id }, game);
+            dbContext.SaveChanges();
+            return Results.CreatedAtRoute("GetGame", new { id = game.Id }, game.ToGameDetailsDto());
         })
         .WithParameterValidation();
 
-        group.MapPut("/{id}", (int id, UpdateGameDto updatedGame) =>
+        group.MapPut("/{id}", (int id, UpdateGameDto updatedGame, GameStoreContext dbContext) =>
         {
-            var index = games.FindIndex(game => game.Id == id);
+            var game = dbContext.Games.Find(id);
 
-            if (index == -1)
+            if (game is null)
             {
                 return Results.NotFound();
             }
 
-            games[index] = new GameDto(
-                id,
-                updatedGame.Name,
-                updatedGame.GenreId,
-                updatedGame.Price,
-                updatedGame.ReleaseDate
-            );
+            var genre = dbContext.Genres.Find(updatedGame.GenreId);
+            if (genre is null)
+            {
+                return Results.BadRequest($"Invalid genre id: {updatedGame.GenreId}");
+            }
+
+            game.UpdateFrom(updatedGame, genre);
+            dbContext.SaveChanges();
             return Results.NoContent();
         });
 
-        group.MapDelete("/{id}", (int id) =>
+        group.MapDelete("/{id}", (int id, GameStoreContext dbContext) =>
         {
-            var index = games.FindIndex(game => game.Id == id);
+            var game = dbContext.Games.Find(id);
 
-            if (index == -1)
+            if (game is null)
             {
                 return Results.NotFound();
             }
 
-            games.RemoveAt(index);
+            dbContext.Games.Remove(game);
+            dbContext.SaveChanges();
             return Results.NoContent();
         });
 

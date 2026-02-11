@@ -7,10 +7,10 @@ POST http://localhost:5078/games
 Content-Type: application/json
 
 {
-  "Name":"Dhurandhar",
-  "genre": "Action",
-  "price": 169.99,
-  "releaseDate": "2022-11-09"
+  "Name":"Hockey",
+  "genreId": 3,
+  "price": 97.99,
+  "releaseDate": "2025-01-07"
 }
 
 ###
@@ -19,8 +19,11 @@ Content-Type: application/json
 
 {
   "name": "Street Fighter II Turbo",
-  "genre": "Fighting",
+  "genreId": 4,
   "price": 24.99,
   "releaseDate": "1994-02-11"
 }
+
+###
+DELETE  http://localhost:5078/games/3
 

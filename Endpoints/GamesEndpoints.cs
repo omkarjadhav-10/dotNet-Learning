@@ -1,7 +1,9 @@
 
 
 using System;
+using DotNET.Data;
 using DotNET.Dtos;
+using DotNET.Entities;
 
 namespace DotNET.Endpoints;
 
@@ -13,35 +15,35 @@ public static class GamesEndpoints
     new(
        1,
         "Street Fighter II",
-        "Fighting",
+        1,
         19.99m,
         new DateOnly(1992, 7, 15)
     ),
     new(
         2,
         "Final Fantasy XIV",
-        "Roleplaying",
+        2,
         59.99m,
         new DateOnly(2010, 9, 30)
     ),
     new(
         3,
         "FIFA 23",
-        "Sports",
+        3,
         69.99m,
         new DateOnly(2022, 9, 27)
     ),
     new(
         4,
         "The Legend of Zelda: Breath of the Wild",
-        "Adventure",
+        4,
         59.99m,
         new DateOnly(2017, 3, 3)
     ),
     new(
         5,
         "Minecraft",
-        "Sandbox",
+        5,
         26.95m,
         new DateOnly(2011, 11, 18)
     )
@@ -61,16 +63,24 @@ public static class GamesEndpoints
                 : Results.NotFound();
         }).WithName("GetGame");
 
-        group.MapPost("/", (CreateGameDto newGame) =>
+        group.MapPost("/", (CreateGameDto newGame, GameStoreContext dbContext) =>
         {
-            GameDto game = new(
-                games.Count + 1,
-                newGame.Name,
-                newGame.Genre,
-                newGame.Price,
-                newGame.ReleaseDate
-            );
-            games.Add(game);
+            var genre = dbContext.Genres.Find(newGame.GenreId);
+            if (genre is null)
+            {
+                return Results.BadRequest($"Invalid genre id: {newGame.GenreId}");
+            }
+
+            Game game = new()
+            {
+                Name = newGame.Name,
+                Genre = genre,
+                GenreId = newGame.GenreId,
+                Price = newGame.Price,
+                ReleaseDate = newGame.ReleaseDate
+
+            };
+            dbContext.Games.Add(game);
             return Results.CreatedAtRoute("GetGame", new { id = game.Id }, game);
         })
         .WithParameterValidation();
@@ -87,7 +97,7 @@ public static class GamesEndpoints
             games[index] = new GameDto(
                 id,
                 updatedGame.Name,
-                updatedGame.Genre,
+                updatedGame.GenreId,
                 updatedGame.Price,
                 updatedGame.ReleaseDate
             );

@@ -1,4 +1,7 @@
+# Build outputs
 bin/
 obj/
 GameStore.db
 .vs/
+.git-untracked-backup-*/
+

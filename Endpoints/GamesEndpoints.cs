@@ -16,25 +16,25 @@ public static class GamesEndpoints
     {
         var group = app.MapGroup("/games");
 
-        group.MapGet("/", (GameStoreContext dbContext) =>
-            dbContext.Games
+        group.MapGet("/", async (GameStoreContext dbContext) =>
+            await dbContext.Games
                 .Include(game => game.Genre)
                 .Select(game => game.ToGameSummaryDto())
-                .ToList());
+                .ToListAsync());
 
-        group.MapGet("/{id}", (int id, GameStoreContext dbContext) =>
+        group.MapGet("/{id}", async (int id, GameStoreContext dbContext) =>
         {
-            var game = dbContext.Games
+            var game = await dbContext.Games
                 .Include(g => g.Genre)
-                .FirstOrDefault(g => g.Id == id);
+                .FirstOrDefaultAsync(g => g.Id == id);
             return game is not null
                 ? Results.Ok(game.ToGameDetailsDto())
                 : Results.NotFound();
         }).WithName("GetGame");
 
-        group.MapPost("/", (CreateGameDto newGame, GameStoreContext dbContext) =>
+        group.MapPost("/", async (CreateGameDto newGame, GameStoreContext dbContext) =>
         {
-            var genre = dbContext.Genres.Find(newGame.GenreId);
+            var genre = await dbContext.Genres.FindAsync(newGame.GenreId);
             if (genre is null)
             {
                 return Results.BadRequest($"Invalid genre id: {newGame.GenreId}");
@@ -42,34 +42,34 @@ public static class GamesEndpoints
 
             Game game = newGame.ToGame(genre);
             dbContext.Games.Add(game);
-            dbContext.SaveChanges();
+            await dbContext.SaveChangesAsync();
             return Results.CreatedAtRoute("GetGame", new { id = game.Id }, game.ToGameDetailsDto());
         })
         .WithParameterValidation();
 
-        group.MapPut("/{id}", (int id, UpdateGameDto updatedGame, GameStoreContext dbContext) =>
+        group.MapPut("/{id}", async (int id, UpdateGameDto updatedGame, GameStoreContext dbContext) =>
         {
-            var game = dbContext.Games.Find(id);
+            var game = await dbContext.Games.FindAsync(id);
 
             if (game is null)
             {
                 return Results.NotFound();
             }
 
-            var genre = dbContext.Genres.Find(updatedGame.GenreId);
+            var genre = await dbContext.Genres.FindAsync(updatedGame.GenreId);
             if (genre is null)
             {
                 return Results.BadRequest($"Invalid genre id: {updatedGame.GenreId}");
             }
 
             game.UpdateFrom(updatedGame, genre);
-            dbContext.SaveChanges();
+            await dbContext.SaveChangesAsync();
             return Results.NoContent();
         });
 
-        group.MapDelete("/{id}", (int id, GameStoreContext dbContext) =>
+        group.MapDelete("/{id}", async (int id, GameStoreContext dbContext) =>
         {
-            var game = dbContext.Games.Find(id);
+            var game = await dbContext.Games.FindAsync(id);
 
             if (game is null)
             {
@@ -77,7 +77,7 @@ public static class GamesEndpoints
             }
 
             dbContext.Games.Remove(game);
-            dbContext.SaveChanges();
+            await dbContext.SaveChangesAsync();
             return Results.NoContent();
         });
 
